@@ -5,11 +5,11 @@ using UnityEngine;
 public class Brakes : MonoBehaviour
 {
 
-    [SerializeField] private float fBrakeMaxDeceleration = 0.9f;
-    [SerializeField] private float fBrakeFrontBias = 0.6f;
+    [SerializeField] private float brakeMaxDeceleration = 0.9f;
+    [SerializeField] private float brakeFrontBias = 0.6f;
 
-    private float fMaxBrakeTorqueFront;
-    private float fMaxBrakeTorqueRear;
+    private float maxBrakeTorqueFront;
+    private float maxBrakeTorqueRear;
 
     void Start()
     {
@@ -17,34 +17,34 @@ public class Brakes : MonoBehaviour
         // note fBrakeFrontBias needs to be modified depending on CoG Z (weight transfer during braking)
         Rigidbody rB = GetComponent<Rigidbody>();
         Suspension suspension = GetComponent<Suspension>();
-        float fMaxBrakeForce = fBrakeMaxDeceleration * Physics.gravity.y * rB.mass;
-        float fMaxBrakeForceFront = fMaxBrakeForce * fBrakeFrontBias / 2.0f;
-        float fMaxBrakeForceRear = fMaxBrakeForce * (1.0f - fBrakeFrontBias) / 2.0f;
-        fMaxBrakeTorqueFront = fMaxBrakeForceFront * suspension.GetRollingRadiusFront;
-        fMaxBrakeTorqueRear = fMaxBrakeForceRear * suspension.GetRollingRadiusRear;
+        float maxBrakeForce = brakeMaxDeceleration * Physics.gravity.y * rB.mass;
+        float maxBrakeForceFront = maxBrakeForce * brakeFrontBias / 2.0f;
+        float maxBrakeForceRear = maxBrakeForce * (1.0f - brakeFrontBias) / 2.0f;
+        maxBrakeTorqueFront = maxBrakeForceFront * suspension.GetRollingRadiusFront;
+        maxBrakeTorqueRear = maxBrakeForceRear * suspension.GetRollingRadiusRear;
     }
 
-    public float[] GetBrakeTorques(float fInputY)
+    public float[] GetBrakeTorques(float inputY)
     {
-        float[] faBrakeTorques = new float[4];
+        float[] brakeTorques = new float[4];
         for (int i = 0; i < 4; i++)
         {
-            if (fInputY >= 0.05f) faBrakeTorques[i] = 0.0f;
+            if (inputY >= 0.05f) brakeTorques[i] = 0.0f;
             else
             {
-                if (i < 2) faBrakeTorques[i] = fMaxBrakeTorqueRear * fInputY;
-                else faBrakeTorques[i] = fMaxBrakeTorqueFront * fInputY;
+                if (i < 2) brakeTorques[i] = maxBrakeTorqueRear * inputY;
+                else brakeTorques[i] = maxBrakeTorqueFront * inputY;
             }
         }
-        return faBrakeTorques;
+        return brakeTorques;
     }
 
-    public float[] ApplyHandbrake(float[] faBrakeTorques)
+    public float[] ApplyHandbrake(float[] brakeTorques)
     {
         for (int i = 0; i < 2; i++)
         {
-            faBrakeTorques[i] = fMaxBrakeTorqueRear * -2.0f;
+            brakeTorques[i] = maxBrakeTorqueRear * -2.0f;
         }
-        return faBrakeTorques;
+        return brakeTorques;
     }
 }

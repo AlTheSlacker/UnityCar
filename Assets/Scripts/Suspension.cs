@@ -5,40 +5,40 @@ using UnityEngine;
 public class Suspension : MonoBehaviour
 {
 
-    [SerializeField] private float fSuspDisplacementRangeFront = 0.30f;
-    [SerializeField] private float fSuspDisplacementRangeRear = 0.30f;
-    [SerializeField] private float fSuspStiffnessFront = 50000.0f;
-    [SerializeField] private float fSuspStiffnessRear = 50000.0f;
-    [SerializeField] private float fSuspDamperFront = 1600.0f;
-    [SerializeField] private float fSuspDamperRear = 1600.0f;
-    [SerializeField] private float fFARBe = 1.0f;
-    [SerializeField] private float fRARBe = 1.0f;
-    [SerializeField] private float fFrontBumperFAxleDistance = 1.0f;
-    [SerializeField] private float fFrontBumperRAxleDistance = 4.0f;
-    [SerializeField] private float fTrackFront = 1.6f;
-    [SerializeField] private float fTrackRear = 1.6f;
-    [SerializeField] private float fRollingRadiusFront = 0.325f;
-    [SerializeField] private float fRollingRadiusRear = 0.325f;
-    [SerializeField] private float fTyreRadiusFront = 0.335f;
-    [SerializeField] private float fTyreRadiusRear = 0.335f;
-    [SerializeField] private float fUnsprungMassFront = 20.0f;
-    [SerializeField] private float fUnsprungMassRear = 20.0f;
+    [SerializeField] private float suspDisplacementRangeFront = 0.30f;
+    [SerializeField] private float suspDisplacementRangeRear = 0.30f;
+    [SerializeField] private float suspStiffnessFront = 50000.0f;
+    [SerializeField] private float suspStiffnessRear = 50000.0f;
+    [SerializeField] private float suspDamperFront = 1600.0f;
+    [SerializeField] private float suspDamperRear = 1600.0f;
+    [SerializeField] private float fARBe = 1.0f;
+    [SerializeField] private float rARBe = 1.0f;
+    [SerializeField] private float frontBumperFAxleDistance = 1.0f;
+    [SerializeField] private float frontBumperRAxleDistance = 4.0f;
+    [SerializeField] private float trackFront = 1.6f;
+    [SerializeField] private float trackRear = 1.6f;
+    [SerializeField] private float rollingRadiusFront = 0.335f;
+    [SerializeField] private float rollingRadiusRear = 0.335f;
+    [SerializeField] private float tyreRadiusFront = 0.335f;
+    [SerializeField] private float tyreRadiusRear = 0.335f;
+    [SerializeField] private float unsprungMassFront = 20.0f;
+    [SerializeField] private float unsprungMassRear = 20.0f;
 
-    private float fTargetPositionFront = 0.5f;
-    private float fTargetPositionRear = 0.5f;
-    private float fWheelBase;
-    private float[] faStaticCornerLoad;
-    private float fTyreFrontOffset = 0.02f;
-    private float fTyreRearOffset = 0.02f;
+    private float targetPositionFront = 0.5f;
+    private float targetPositionRear = 0.5f;
+    private float wheelBase;
+    private float[] staticCornerLoad;
+    private float tyreFrontOffset = 0.02f;
+    private float tyreRearOffset = 0.02f;
     private WheelCollider[] wC;
 
-    public float GetWheelBase { get { return fWheelBase; } }
-    public float[] GetStaticCornerLoad { get { return faStaticCornerLoad; } }
-    public float GetTyreFrontOffset { get { return fTyreFrontOffset; } }
-    public float GetTyreRearOffset { get { return fTyreRearOffset; } }
-    public float GetRollingRadiusFront { get { return fRollingRadiusFront; } }
-    public float GetRollingRadiusRear { get { return fRollingRadiusRear; } }
-    public float GetTrackFront { get { return fTrackFront; } }
+    public float GetWheelBase { get { return wheelBase; } }
+    public float[] GetStaticCornerLoad { get { return staticCornerLoad; } }
+    public float GetTyreFrontOffset { get { return tyreFrontOffset; } }
+    public float GetTyreRearOffset { get { return tyreRearOffset; } }
+    public float GetRollingRadiusFront { get { return rollingRadiusFront; } }
+    public float GetRollingRadiusRear { get { return rollingRadiusRear; } }
+    public float GetTrackFront { get { return trackFront; } }
 
 
     void Start()
@@ -47,21 +47,21 @@ public class Suspension : MonoBehaviour
         Rigidbody rB = GetComponent<Rigidbody>();
 
         // calculate wheelbase
-        fWheelBase = fFrontBumperRAxleDistance - fFrontBumperFAxleDistance;
+        wheelBase = frontBumperRAxleDistance - frontBumperFAxleDistance;
 
         // calculate the wheel centre correction for rolling radius flat spot
-        fTyreFrontOffset = fTyreRadiusFront - fRollingRadiusFront;
-        fTyreRearOffset = fTyreRadiusRear - fRollingRadiusRear;
+        tyreFrontOffset = tyreRadiusFront - rollingRadiusFront;
+        tyreRearOffset = tyreRadiusRear - rollingRadiusRear;
 
         // set up front and rear suspension springs
-        JointSpring jSpringFront;
-        JointSpring jSpringRear;
-        jSpringFront.spring = fSuspStiffnessFront;
-        jSpringFront.damper = fSuspDamperFront;
-        jSpringFront.targetPosition = fTargetPositionFront;
-        jSpringRear.spring = fSuspStiffnessRear;
-        jSpringRear.damper = fSuspDamperRear;
-        jSpringRear.targetPosition = fTargetPositionRear;
+        JointSpring springFront;
+        JointSpring springRear;
+        springFront.spring = suspStiffnessFront;
+        springFront.damper = suspDamperFront;
+        springFront.targetPosition = targetPositionFront;
+        springRear.spring = suspStiffnessRear;
+        springRear.damper = suspDamperRear;
+        springRear.targetPosition = targetPositionRear;
 
         wC = gameObject.GetComponentsInChildren<WheelCollider>();
 
@@ -71,21 +71,21 @@ public class Suspension : MonoBehaviour
             wC[i].ConfigureVehicleSubsteps(30, 8, 20);
             if (i < 2)
             {
-                wC[i].radius = fRollingRadiusRear;
-                wC[i].mass = fUnsprungMassRear;
-                wC[i].center = new Vector3(0.0f, fSuspDisplacementRangeRear * (1.0f - fTargetPositionRear), 0.0f);
-                wC[i].suspensionDistance = fSuspDisplacementRangeRear;
-                wC[i].suspensionSpring = jSpringRear;
+                wC[i].radius = rollingRadiusRear;
+                wC[i].mass = unsprungMassRear;
+                wC[i].center = new Vector3(0.0f, suspDisplacementRangeRear * (1.0f - targetPositionRear), 0.0f);
+                wC[i].suspensionDistance = suspDisplacementRangeRear;
+                wC[i].suspensionSpring = springRear;
                 wC[i].forceAppPointDistance = 0.0f;
                 wC[i].wheelDampingRate = 0.0001f;
             }
             else
             {
-                wC[i].radius = fRollingRadiusFront;
-                wC[i].mass = fUnsprungMassFront;
-                wC[i].center = new Vector3(0.0f, fSuspDisplacementRangeFront * (1.0f - fTargetPositionFront), 0.0f);
-                wC[i].suspensionDistance = fSuspDisplacementRangeFront;
-                wC[i].suspensionSpring = jSpringFront;
+                wC[i].radius = rollingRadiusFront;
+                wC[i].mass = unsprungMassFront;
+                wC[i].center = new Vector3(0.0f, suspDisplacementRangeFront * (1.0f - targetPositionFront), 0.0f);
+                wC[i].suspensionDistance = suspDisplacementRangeFront;
+                wC[i].suspensionSpring = springFront;
                 wC[i].forceAppPointDistance = 0.0f;
                 wC[i].wheelDampingRate = 0.0001f;
             }
@@ -93,23 +93,23 @@ public class Suspension : MonoBehaviour
 
         // position the wheelcolliders according to vehicle dimensions
         // RL RR FL FR
-        wC[0].gameObject.transform.localPosition = new Vector3(fTrackRear / -2.0f, fRollingRadiusRear, -fFrontBumperRAxleDistance);
-        wC[1].gameObject.transform.localPosition = new Vector3(fTrackRear / 2.0f, fRollingRadiusRear, -fFrontBumperRAxleDistance);
-        wC[2].gameObject.transform.localPosition = new Vector3(fTrackFront / -2.0f, fRollingRadiusFront, -fFrontBumperFAxleDistance);
-        wC[3].gameObject.transform.localPosition = new Vector3(fTrackFront / 2.0f, fRollingRadiusFront, -fFrontBumperFAxleDistance);
+        wC[0].gameObject.transform.localPosition = new Vector3(trackRear / -2.0f, rollingRadiusRear, -frontBumperRAxleDistance);
+        wC[1].gameObject.transform.localPosition = new Vector3(trackRear / 2.0f, rollingRadiusRear, -frontBumperRAxleDistance);
+        wC[2].gameObject.transform.localPosition = new Vector3(trackFront / -2.0f, rollingRadiusFront, -frontBumperFAxleDistance);
+        wC[3].gameObject.transform.localPosition = new Vector3(trackFront / 2.0f, rollingRadiusFront, -frontBumperFAxleDistance);
 
         // calculate static corner loads
         float fMass = 1000.0f;
-        faStaticCornerLoad = new float[4];
+        staticCornerLoad = new float[4];
         fMass = rB.mass;
         // calculate CoG from front axle (care sign convention)
-        float fFrontAxleToCoG = (fFrontBumperRAxleDistance - fFrontBumperFAxleDistance) / 2.0f;
-        fFrontAxleToCoG = Mathf.Abs(rB.centerOfMass.z) - fFrontBumperFAxleDistance;
+        float fFrontAxleToCoG = (frontBumperRAxleDistance - frontBumperFAxleDistance) / 2.0f;
+        fFrontAxleToCoG = Mathf.Abs(rB.centerOfMass.z) - frontBumperFAxleDistance;
         // calcualate corner mass for front and rear
-        faStaticCornerLoad[0] = fFrontAxleToCoG / fWheelBase * fMass / 2.0f * Physics.gravity.y;
-        faStaticCornerLoad[1] = faStaticCornerLoad[0];
-        faStaticCornerLoad[2] = (1 - fFrontAxleToCoG / fWheelBase) * fMass / 2.0f * Physics.gravity.y;
-        faStaticCornerLoad[3] = faStaticCornerLoad[2];
+        staticCornerLoad[0] = fFrontAxleToCoG / wheelBase * fMass / 2.0f * Physics.gravity.y;
+        staticCornerLoad[1] = staticCornerLoad[0];
+        staticCornerLoad[2] = (1 - fFrontAxleToCoG / wheelBase) * fMass / 2.0f * Physics.gravity.y;
+        staticCornerLoad[3] = staticCornerLoad[2];
     }
 
 
@@ -117,54 +117,32 @@ public class Suspension : MonoBehaviour
     public float GetNoSlipWheelRPM(float fVel)
     {
         // Don't return 0.0f for div0 reasons
-        float fNoSlipWheelRPM = fVel / (6.283f * fRollingRadiusRear) * 60.0f;
-        if (fNoSlipWheelRPM == 0.0f) fNoSlipWheelRPM = 0.01f;
-        return fNoSlipWheelRPM;
+        float noSlipWheelRPM = fVel / (6.283f * rollingRadiusRear) * 60.0f;
+        if (noSlipWheelRPM == 0.0f) noSlipWheelRPM = 0.01f;
+        return noSlipWheelRPM;
     }
 
     public void ApplyLLT(Rigidbody RB, WheelCollider[] WC)
     {
         // apply anti-rollbar load transfer
-        float fTravelL, fTravelR, fARBDisp;
-        float fTransferForce;
-        float fARBe = fRARBe;
-        float fSuspK = fSuspStiffnessRear;
+        float travelL, travelR, aRBDisp;
+        float transferForce;
+        float aRBe = rARBe;
+        float suspK = suspStiffnessRear;
         // RL RR FL FR
         for (int i = 0; i <= 2; i = i + 2)
         {
             if (i == 2)
             {
-                fARBe = fFARBe;
-                fSuspK = fSuspStiffnessFront;
+                aRBe = fARBe;
+                suspK = suspStiffnessFront;
             }
-            fTravelL = WC[i].gameObject.transform.GetChild(0).transform.localPosition.y;
-            fTravelR = WC[i + 1].gameObject.transform.GetChild(0).transform.localPosition.y;
-            fARBDisp = Mathf.Abs(fTravelL - fTravelR);
-            fTransferForce = fARBDisp * fARBe * fSuspK / 2.0f;
-            RB.AddForceAtPosition(WC[i].transform.up * fTransferForce * Mathf.Sign(fTravelL), WC[i].transform.position);
-            RB.AddForceAtPosition(WC[i + 1].transform.up * fTransferForce * Mathf.Sign(fTravelR), WC[i + 1].transform.position);
+            travelL = WC[i].gameObject.transform.GetChild(0).transform.localPosition.y;
+            travelR = WC[i + 1].gameObject.transform.GetChild(0).transform.localPosition.y;
+            aRBDisp = Mathf.Abs(travelL - travelR);
+            transferForce = aRBDisp * aRBe * suspK / 2.0f;
+            RB.AddForceAtPosition(WC[i].transform.up * transferForce * Mathf.Sign(travelL), WC[i].transform.position);
+            RB.AddForceAtPosition(WC[i + 1].transform.up * transferForce * Mathf.Sign(travelR), WC[i + 1].transform.position);
         }
     }
-
-    public void RePosition()
-    {
-
-        // calculate wheelbase
-        fWheelBase = fFrontBumperRAxleDistance - fFrontBumperFAxleDistance;
-
-        // calculate the wheel centre correction for rolling radius flat spot
-        fTyreFrontOffset = fTyreRadiusFront - fRollingRadiusFront;
-        fTyreRearOffset = fTyreRadiusRear - fRollingRadiusRear;
-
-        // set up front and rear suspension springs
-        JointSpring jSpringFront;
-        JointSpring jSpringRear;
-        jSpringFront.spring = fSuspStiffnessFront;
-        jSpringFront.damper = fSuspDamperFront;
-        jSpringFront.targetPosition = fTargetPositionFront;
-        jSpringRear.spring = fSuspStiffnessRear;
-        jSpringRear.damper = fSuspDamperRear;
-        jSpringRear.targetPosition = fTargetPositionRear;
-    }
-
 }

@@ -6,50 +6,50 @@ public class Steering : MonoBehaviour
 {
 
     // SteerLock is the maximum angle that the wheels may be turned
-    [SerializeField] private float fSteerLock = 30.0f;
+    [SerializeField] private float steerLock = 30.0f;
     // SteerReturn is the degrees per second that the wheels return to 0 degrees deflection at when no steering input is received, low speed
-    [SerializeField] private float fSteerReturnLow = 40.0f;
+    [SerializeField] private float steerReturnLow = 40.0f;
     // SteerReturn is the degrees per second that the wheels return to 0 degrees deflection at when no steering input is received, high speed
-    [SerializeField] private float fSteerReturnHigh = 20.0f;
+    [SerializeField] private float steerReturnHigh = 20.0f;
     // SteerAdjust is the degrees per second that the wheels rotate when a steering key is depressed, low speed
-    [SerializeField] private float fSteerAdjustLow = 40.0f;
+    [SerializeField] private float steerAdjustLow = 40.0f;
     // SteerAdjust is the degrees per second that the wheels rotate when a steering key is depressed, low speed
-    [SerializeField] private float fSteerAdjustHigh = 40.0f;
+    [SerializeField] private float steerAdjustHigh = 40.0f;
     // velocity at which steering sensitivity is at a minimum
-    [SerializeField] private float fHighVel = 15.0f;
+    [SerializeField] private float highVel = 15.0f;
     // enable steer assist
-    [SerializeField] private bool bSteerAssist = true;
+    [SerializeField] private bool steerAssist = true;
     // steer assist max slip
-    [SerializeField] private float fMaxSlip = 4.5f;
+    [SerializeField] private float maxSlip = 4.5f;
 
 
-    private float fTimeStep;
-    private float fMaxSlipRad;
+    private float timeStep;
+    private float maxSlipRad;
 
     void Start()
     {
-        fTimeStep = (1.0f / Time.deltaTime);
-        fMaxSlipRad = fMaxSlip * Mathf.Deg2Rad;
+        timeStep = (1.0f / Time.deltaTime);
+        maxSlipRad = maxSlip * Mathf.Deg2Rad;
     }
 
-    public float SteerAngle(float fVel, float fControllerInputX, float fSteerAngle, WheelCollider[] wC)
+    public float SteerAngle(float vel, float controllerInputX, float steerAngle, WheelCollider[] wC)
     {
-        float fVelocityScalar = 1.0f - Mathf.Clamp(Mathf.Abs(fVel / fHighVel), 0.0f, 1.0f);
-        float fSteerAdjustTotal = (fSteerAdjustHigh + (fSteerAdjustLow - fSteerAdjustHigh) * fVelocityScalar) / fTimeStep;
-        float fSteerReturnTotal = (fSteerReturnHigh + (fSteerReturnLow - fSteerReturnHigh) * fVelocityScalar) / fTimeStep;
+        float velocityScalar = 1.0f - Mathf.Clamp(Mathf.Abs(vel / highVel), 0.0f, 1.0f);
+        float steerAdjustTotal = (steerAdjustHigh + (steerAdjustLow - steerAdjustHigh) * velocityScalar) / timeStep;
+        float steerReturnTotal = (steerReturnHigh + (steerReturnLow - steerReturnHigh) * velocityScalar) / timeStep;
 
-        float fUpdatedSteerAngle = 0.0f;
-        float fSlipLat = 0.0f;
-        bool bNoMoreSteer = false;
+        float updatedSteerAngle = 0.0f;
+        float slipLat = 0.0f;
+        bool noMoreSteer = false;
 
-        if (Mathf.Abs(fControllerInputX) < 0.03f)
+        if (Mathf.Abs(controllerInputX) < 0.03f)
         {
             // no steering input, allow the wheels to re-centre
-            if (Mathf.Abs(fSteerAngle) > fSteerReturnTotal)
+            if (Mathf.Abs(steerAngle) > steerReturnTotal)
             {
-                fUpdatedSteerAngle = fSteerAngle - fSteerReturnTotal * Mathf.Sign(fSteerAngle);
+                updatedSteerAngle = steerAngle - steerReturnTotal * Mathf.Sign(steerAngle);
             }
-            else fUpdatedSteerAngle = 0.0f;
+            else updatedSteerAngle = 0.0f;
         }
         else
         {
@@ -59,29 +59,29 @@ public class Steering : MonoBehaviour
             for (int i = 2; i < 4; i++)
             {
                 wC[i].GetGroundHit(out WheelHit whContactPatch);
-                fSlipLat = whContactPatch.sidewaysSlip;
-                if (Mathf.Abs(fSlipLat) > fMaxSlipRad) bNoMoreSteer = true;
+                slipLat = whContactPatch.sidewaysSlip;
+                if (Mathf.Abs(slipLat) > maxSlipRad) noMoreSteer = true;
             }
 
             // calculate new proposed steering angle
-            fUpdatedSteerAngle = fSteerAngle + fSteerAdjustTotal * Mathf.Sign(fControllerInputX);
+            updatedSteerAngle = steerAngle + steerAdjustTotal * Mathf.Sign(controllerInputX);
             // check it does not exceed steering lock angle, if it does restore to max lock angle
-            if (Mathf.Abs(fUpdatedSteerAngle) > fSteerLock) fUpdatedSteerAngle = fSteerLock * Mathf.Sign(fControllerInputX);
+            if (Mathf.Abs(updatedSteerAngle) > steerLock) updatedSteerAngle = steerLock * Mathf.Sign(controllerInputX);
             // check angular slip is not already at the steering assist limit, if it is restore to previous angle
-            if (bNoMoreSteer && bSteerAssist && (Mathf.Sign(fSlipLat) * Mathf.Sign(fControllerInputX) < 0)) fUpdatedSteerAngle = fSteerAngle;
+            if (noMoreSteer && steerAssist && (Mathf.Sign(slipLat) * Mathf.Sign(controllerInputX) < 0)) updatedSteerAngle = steerAngle;
         }
 
-        return fUpdatedSteerAngle;
+        return updatedSteerAngle;
     }
 
 
     // calculate Ackermann steering angle for selected wheel
-    public float AckerAdjusted(float fSteerAngle, float fWheelBase, float fTrackFront, bool bLeft)
+    public float AckerAdjusted(float steerAngle, float wheelBase, float trackFront, bool left)
     {
-        if (fSteerAngle == 0.0f) return 0.0f;
-        float fTurnRad = fWheelBase / Mathf.Tan(Mathf.Deg2Rad * fSteerAngle);
-        if (bLeft) return Mathf.Rad2Deg * Mathf.Atan(fWheelBase / (fTurnRad + fTrackFront));
-        else return Mathf.Rad2Deg * Mathf.Atan(fWheelBase / (fTurnRad - fTrackFront));
+        if (steerAngle == 0.0f) return 0.0f;
+        float fTurnRad = wheelBase / Mathf.Tan(Mathf.Deg2Rad * steerAngle);
+        if (left) return Mathf.Rad2Deg * Mathf.Atan(wheelBase / (fTurnRad + trackFront));
+        else return Mathf.Rad2Deg * Mathf.Atan(wheelBase / (fTurnRad - trackFront));
     }
 
 }
