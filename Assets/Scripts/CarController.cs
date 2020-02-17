@@ -115,7 +115,6 @@ public class CarController : MonoBehaviour
         // get requested wheel torques
         float[] wheelTorques = transmission.GetWheelTorques(engineTorque, wC);
 
-
         // get traction control torque updates
         // if (cd_tractioncontrol != null) faWheelTorques = cd_tractioncontrol.GetTCReducedTorques(faWheelTorques, WC);
 
