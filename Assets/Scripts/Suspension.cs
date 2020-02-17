@@ -99,30 +99,27 @@ public class Suspension : MonoBehaviour
         wC[3].gameObject.transform.localPosition = new Vector3(trackFront / 2.0f, rollingRadiusFront, -frontBumperFAxleDistance);
 
         // calculate static corner loads
-        float fMass = 1000.0f;
         staticCornerLoad = new float[4];
-        fMass = rB.mass;
+        float mass = rB.mass;
         // calculate CoG from front axle (care sign convention)
-        float fFrontAxleToCoG = (frontBumperRAxleDistance - frontBumperFAxleDistance) / 2.0f;
-        fFrontAxleToCoG = Mathf.Abs(rB.centerOfMass.z) - frontBumperFAxleDistance;
+        float frontAxleToCoG = (frontBumperRAxleDistance - frontBumperFAxleDistance) / 2.0f;
+        frontAxleToCoG = Mathf.Abs(rB.centerOfMass.z) - frontBumperFAxleDistance;
         // calcualate corner mass for front and rear
-        staticCornerLoad[0] = fFrontAxleToCoG / wheelBase * fMass / 2.0f * Physics.gravity.y;
+        staticCornerLoad[0] = frontAxleToCoG / wheelBase * mass / 2.0f * Physics.gravity.y;
         staticCornerLoad[1] = staticCornerLoad[0];
-        staticCornerLoad[2] = (1 - fFrontAxleToCoG / wheelBase) * fMass / 2.0f * Physics.gravity.y;
+        staticCornerLoad[2] = (1 - frontAxleToCoG / wheelBase) * mass / 2.0f * Physics.gravity.y;
         staticCornerLoad[3] = staticCornerLoad[2];
     }
 
-
-
-    public float GetNoSlipWheelRPM(float fVel)
+    public float GetNoSlipWheelRPM(float vel)
     {
         // Don't return 0.0f for div0 reasons
-        float noSlipWheelRPM = fVel / (6.283f * rollingRadiusRear) * 60.0f;
+        float noSlipWheelRPM = vel / (6.283f * rollingRadiusRear) * 60.0f;
         if (noSlipWheelRPM == 0.0f) noSlipWheelRPM = 0.01f;
         return noSlipWheelRPM;
     }
 
-    public void ApplyLLT(Rigidbody RB, WheelCollider[] WC)
+    public void ApplyLLT(Rigidbody rB, WheelCollider[] WC)
     {
         // apply anti-rollbar load transfer
         float travelL, travelR, aRBDisp;
@@ -141,8 +138,8 @@ public class Suspension : MonoBehaviour
             travelR = WC[i + 1].gameObject.transform.GetChild(0).transform.localPosition.y;
             aRBDisp = Mathf.Abs(travelL - travelR);
             transferForce = aRBDisp * aRBe * suspK / 2.0f;
-            RB.AddForceAtPosition(WC[i].transform.up * transferForce * Mathf.Sign(travelL), WC[i].transform.position);
-            RB.AddForceAtPosition(WC[i + 1].transform.up * transferForce * Mathf.Sign(travelR), WC[i + 1].transform.position);
+            rB.AddForceAtPosition(WC[i].transform.up * transferForce * Mathf.Sign(travelL), WC[i].transform.position);
+            rB.AddForceAtPosition(WC[i + 1].transform.up * transferForce * Mathf.Sign(travelR), WC[i + 1].transform.position);
         }
     }
 }

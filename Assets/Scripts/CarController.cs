@@ -22,17 +22,23 @@ public class CarController : MonoBehaviour
     private float steerAngle = 0.0f;
 
     private AeroDynamics aeroDynamics;
-    private UserInput userInput;
+    private Brakes brakes;
+    private Engine engine;
     private Steering steering;
     private Suspension suspension;
-    private Brakes brakes;
+    private Transmission transmission;
+    private UserInput userInput;
 
     void Awake()
     {
         aeroDynamics = GetComponent<AeroDynamics>();
-        userInput = GetComponent<UserInput>();
+        brakes = GetComponent<Brakes>();
+        engine = GetComponent<Engine>();
         steering = GetComponent<Steering>();
         suspension = GetComponent<Suspension>();
+        transmission = GetComponent<Transmission>();
+        userInput = GetComponent<UserInput>();
+
 
         // set the physics clock to 120 Hz
         Time.fixedDeltaTime = 0.008333f;
@@ -74,8 +80,6 @@ public class CarController : MonoBehaviour
         aeroDynamics.ApplyAeroDrag(rB, wC, vel);
         aeroDynamics.ApplyAeroLift(rB, wC, vel);
 
-        
-
         // update steering angle due to input, correct for ackermann and apply steering (if we have a steering script)
         if (steering != null && suspension != null)
         {
@@ -84,61 +88,52 @@ public class CarController : MonoBehaviour
             wC[3].steerAngle = steering.AckerAdjusted(steerAngle, suspension.GetWheelBase, suspension.GetTrackFront, false);
         }
 
-        /*
+        
         // update lateral load transfer from anti-roll bars (sway bars)
-        if (cd_suspension != null) cd_suspension.ApplyLLT(RB, WC);
+        suspension.ApplyLLT(rB, wC);
 
         // if automatic, select gear appropriate for vehicle speed (unless reverse requested)
-        if (cd_transmission != null && cd_suspension != null)
+        if (transmission.GetAutomatic)
         {
-            if (cd_transmission.GetAutomatic)
-            {
-                if (fInputR > 0.1) cd_transmission.SelectReverse();
-                else cd_transmission.SetGear(cd_suspension.GetNoSlipWheelRPM(fVel));
-            }
+            if (inputR > 0.1) transmission.SelectReverse();
+            else transmission.SetGear(suspension.GetNoSlipWheelRPM(vel));
         }
 
         // update engine rpm and available torque
-        float fTransmissionRatio = 1.0f;
-        float fEngineClutchLockRPM = 0.0f;
-        float fEngineTorque = 0.0f;
-        if (cd_engine != null && cd_suspension != null)
-        {
-            if (cd_transmission != null)
-            {
-                fTransmissionRatio = cd_transmission.GetTransmissionRatio();
-                fEngineClutchLockRPM = cd_transmission.GetEngineClutchLockRPM;
-            }
-            cd_engine.UpdateEngineSpeedRPM(cd_suspension.GetNoSlipWheelRPM(fVel), fInputY, fTransmissionRatio, fEngineClutchLockRPM);
-            fEngineTorque = cd_engine.GetMaxEngineTorque();
-        }
+        float transmissionRatio = 1.0f;
+        float engineClutchLockRPM = 0.0f;
+        float engineTorque = 0.0f;
+        transmissionRatio = transmission.GetTransmissionRatio();
+        engineClutchLockRPM = transmission.GetEngineClutchLockRPM;
+        engine.UpdateEngineSpeedRPM(suspension.GetNoSlipWheelRPM(vel), inputY, transmissionRatio, engineClutchLockRPM);
+        engineTorque = engine.GetMaxEngineTorque();
 
         // get requested engine torque
-        if (fInputY > 0.2f) fEngineTorque = fEngineTorque * fInputY;
-        else fEngineTorque = 0.0f;
+        if (inputY > 0.2f) engineTorque = engineTorque * inputY;
+        else engineTorque = 0.0f;
 
         // get requested wheel torques
-        float[] faWheelTorques = cd_transmission.GetWheelTorques(fEngineTorque, WC);
+        float[] wheelTorques = transmission.GetWheelTorques(engineTorque, wC);
 
 
         // get traction control torque updates
-        if (cd_tractioncontrol != null) faWheelTorques = cd_tractioncontrol.GetTCReducedTorques(faWheelTorques, WC);
+        // if (cd_tractioncontrol != null) faWheelTorques = cd_tractioncontrol.GetTCReducedTorques(faWheelTorques, WC);
 
         // get requested brake torques
-        float[] faBrakeTorques = cd_brakes.GetBrakeTorques(fInputY);
+        float[] brakeTorques = brakes.GetBrakeTorques(inputY);
 
         // if handbrake is on, brake rear wheels
-        if (fInputH > 0.1f) cd_brakes.ApplyHandbrake(faBrakeTorques);
+        if (inputH > 0.1f) brakes.ApplyHandbrake(brakeTorques);
 
         // Calculate a wheel rpm limit based on engine limit and transmission
-        float fWheelRPMLimit = Mathf.Abs(cd_engine.GetEngineRPMMax / cd_transmission.GetTransmissionRatio()) * 1.01f;
+        float wheelRPMLimit = Mathf.Abs(engine.GetEngineRPMMax / transmission.GetTransmissionRatio()) * 1.01f;
 
         // check if wheel should be hitting engine rpm limit, if so, cut power to prevent over revving of wheel
         int iDrivenWheelID;
-        for (int j = 0; j < cd_transmission.GetDrivenWheels.Count; j++)
+        for (int j = 0; j < transmission.GetDrivenWheels.Count; j++)
         {
-            iDrivenWheelID = cd_transmission.GetDrivenWheels[j];
-            if (WC[cd_transmission.GetDrivenWheels[j]].rpm > fWheelRPMLimit) faWheelTorques[iDrivenWheelID] = 0.0f;
+            iDrivenWheelID = transmission.GetDrivenWheels[j];
+            if (wC[transmission.GetDrivenWheels[j]].rpm > wheelRPMLimit) wheelTorques[iDrivenWheelID] = 0.0f;
         }
 
         // update brake and motor torques on wheel colliders
@@ -146,10 +141,10 @@ public class CarController : MonoBehaviour
         // initialise all to 0.0f
         for (int i = 0; i < 4; i++)
         {
-            WC[i].brakeTorque = faBrakeTorques[i];
-            WC[i].motorTorque = faWheelTorques[i];
+            wC[i].brakeTorque = brakeTorques[i];
+            wC[i].motorTorque = wheelTorques[i];
         }
-        */
+   
     }
 
 
@@ -157,19 +152,14 @@ public class CarController : MonoBehaviour
     {
         Transform transWheel;
 
-        /*
         // if transmission is manual then check for gear change request
         // Button up/down detection happens at display frequency, so the check is performed here
-        if (cd_transmission != null)
+        if (!transmission.GetAutomatic)
         {
-            if (!cd_transmission.GetAutomatic)
-            {
-                if (Input.GetButtonDown("GearShiftUp")) cd_transmission.GearShiftUp();
-                if (Input.GetButtonDown("GearShiftDown")) cd_transmission.GearShiftDown();
-            }
+            if (Input.GetButtonDown("GearShiftUp")) transmission.GearShiftUp();
+            if (Input.GetButtonDown("GearShiftDown")) transmission.GearShiftDown();
         }
-        */
-
+ 
         // update wheel mesh positions to match wheel collider positions
         // slightly convoluted correction for tyre compression which must be corrected locally when WC position update is only available globally
         float tyreOffset = 0.0f;
