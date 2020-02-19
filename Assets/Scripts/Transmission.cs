@@ -35,6 +35,7 @@ public class Transmission : MonoBehaviour
     private int gearCurrent = 1;
     private float[] gearTotalRatios = new float[11];
     private List<int> drivenWheels = new List<int>();
+    private WheelCollider[] wC;
 
     public int GetGearCurrent { get { return gearCurrent; } }
     public bool GetAutomatic { get { return automatic; } }
@@ -48,6 +49,8 @@ public class Transmission : MonoBehaviour
 
     void Start()
     {
+        // grab the wheel collider array
+        wC = gameObject.GetComponentsInChildren<WheelCollider>();
 
         // Limited to a maximum of 10 forward gears
         if (numberOfGears > 10) numberOfGears = 10;
@@ -99,11 +102,10 @@ public class Transmission : MonoBehaviour
 
     }
 
-    public void SetGear(float fWheelRPM)
+    public void SetGear(float wheelRPM, float engineRPMMaxPower)
     {
-        Engine engine = GetComponent<Engine>();
-        if (fWheelRPM == 0.0f) fWheelRPM = 0.1f;
-        float fMaxTotalRatio = Mathf.Abs(engine.GetEngineRPMMaxPower / fWheelRPM);
+        if (wheelRPM == 0.0f) wheelRPM = 0.1f;
+        float fMaxTotalRatio = Mathf.Abs(engineRPMMaxPower / wheelRPM);
         int iGear = gearCurrent;
         for (int i = numberOfGears; i > 0; i--)
         {
@@ -134,7 +136,7 @@ public class Transmission : MonoBehaviour
         return gearTotalRatios[gearCurrent];
     }
 
-    public float[] GetWheelTorques(float engineTorque, WheelCollider[] wC)
+    public float[] GetWheelTorques(float engineTorque)
     {
         float[] wheelTorques = new float[4];
         float[] diffTorques = new float[2];

@@ -273,7 +273,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 202234984}
   m_LocalRotation: {x: 0.100282334, y: -0, z: -0, w: 0.99495906}
-  m_LocalPosition: {x: 0, y: 2.605, z: -7.96}
+  m_LocalPosition: {x: 0, y: 3.03, z: -10.04}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1572473146}
@@ -2600,9 +2600,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c082f02cf3be43d439a154d4a2178019, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  acSlipLat: {fileID: 0}
-  slipLongFeedback: 0.3
-  slipLatFeedback: 0.08
   tyreFrictionFront: 1.1
   tyreFrictionRear: 1.1
 --- !u!1 &1734310326

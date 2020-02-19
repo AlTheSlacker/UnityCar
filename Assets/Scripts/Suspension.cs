@@ -31,6 +31,7 @@ public class Suspension : MonoBehaviour
     private float tyreFrontOffset = 0.02f;
     private float tyreRearOffset = 0.02f;
     private WheelCollider[] wC;
+    private Rigidbody rB;
 
     public float GetWheelBase { get { return wheelBase; } }
     public float[] GetStaticCornerLoad { get { return staticCornerLoad; } }
@@ -44,10 +45,10 @@ public class Suspension : MonoBehaviour
     void Start()
     {
 
-        Rigidbody rB = GetComponent<Rigidbody>();
 
         // calculate wheelbase
         wheelBase = frontBumperRAxleDistance - frontBumperFAxleDistance;
+        rB = GetComponent<Rigidbody>();
 
         // calculate the wheel centre correction for rolling radius flat spot
         tyreFrontOffset = tyreRadiusFront - rollingRadiusFront;
@@ -100,14 +101,13 @@ public class Suspension : MonoBehaviour
 
         // calculate static corner loads
         staticCornerLoad = new float[4];
-        float mass = rB.mass;
         // calculate CoG from front axle (care sign convention)
         float frontAxleToCoG = (frontBumperRAxleDistance - frontBumperFAxleDistance) / 2.0f;
         frontAxleToCoG = Mathf.Abs(rB.centerOfMass.z) - frontBumperFAxleDistance;
         // calcualate corner mass for front and rear
-        staticCornerLoad[0] = frontAxleToCoG / wheelBase * mass / 2.0f * Physics.gravity.y;
+        staticCornerLoad[0] = frontAxleToCoG / wheelBase * rB.mass / 2.0f * Physics.gravity.y;
         staticCornerLoad[1] = staticCornerLoad[0];
-        staticCornerLoad[2] = (1 - frontAxleToCoG / wheelBase) * mass / 2.0f * Physics.gravity.y;
+        staticCornerLoad[2] = (1 - frontAxleToCoG / wheelBase) * rB.mass / 2.0f * Physics.gravity.y;
         staticCornerLoad[3] = staticCornerLoad[2];
     }
 
@@ -119,7 +119,7 @@ public class Suspension : MonoBehaviour
         return noSlipWheelRPM;
     }
 
-    public void ApplyLLT(Rigidbody rB, WheelCollider[] WC)
+    public void ApplyLLT()
     {
         // apply anti-rollbar load transfer
         float travelL, travelR, aRBDisp;
@@ -134,12 +134,12 @@ public class Suspension : MonoBehaviour
                 aRBe = fARBe;
                 suspK = suspStiffnessFront;
             }
-            travelL = WC[i].gameObject.transform.GetChild(0).transform.localPosition.y;
-            travelR = WC[i + 1].gameObject.transform.GetChild(0).transform.localPosition.y;
+            travelL = wC[i].gameObject.transform.GetChild(0).transform.localPosition.y;
+            travelR = wC[i + 1].gameObject.transform.GetChild(0).transform.localPosition.y;
             aRBDisp = Mathf.Abs(travelL - travelR);
             transferForce = aRBDisp * aRBe * suspK / 2.0f;
-            rB.AddForceAtPosition(WC[i].transform.up * transferForce * Mathf.Sign(travelL), WC[i].transform.position);
-            rB.AddForceAtPosition(WC[i + 1].transform.up * transferForce * Mathf.Sign(travelR), WC[i + 1].transform.position);
+            rB.AddForceAtPosition(wC[i].transform.up * transferForce * Mathf.Sign(travelL), wC[i].transform.position);
+            rB.AddForceAtPosition(wC[i + 1].transform.up * transferForce * Mathf.Sign(travelR), wC[i + 1].transform.position);
         }
     }
 }

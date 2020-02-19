@@ -21,7 +21,6 @@ public class Engine : MonoBehaviour
     public float GetEngineRPMMaxPower { get { return engineRPMMaxPower; } }
     public float GetEngineRPMMax { get { return engineRPMMax; } }
 
-
     void Start()
     {
         // generate engine torque curves
@@ -59,7 +58,6 @@ public class Engine : MonoBehaviour
         return power * 7120.54f / rPM;
     }
 
-
     void EngineTorqueSetup()
     {
         // add RPM values for the torque curve array
@@ -73,7 +71,6 @@ public class Engine : MonoBehaviour
         engineTorque[2, 1] = PowerToTorque(enginePowerMaxPower, engineRPMMaxPower);
         engineTorque[3, 1] = PowerToTorque(enginePowerMaxRPM, engineRPMMax);
     }
-
 
     public void UpdateEngineSpeedRPM(float wheelRPM, float inputY, float gearRatio, float engineClutchLockRPM)
     {

@@ -14,7 +14,7 @@ public class Brakes : MonoBehaviour
     void Start()
     {
         // calculate front/rear max brake force / torques per wheel
-        // note fBrakeFrontBias needs to be modified depending on CoG Z (weight transfer during braking)
+        // note brakeFrontBias needs to be modified depending on CoG Z (weight transfer during braking)
         Rigidbody rB = GetComponent<Rigidbody>();
         Suspension suspension = GetComponent<Suspension>();
         float maxBrakeForce = brakeMaxDeceleration * Physics.gravity.y * rB.mass;

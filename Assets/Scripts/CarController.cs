@@ -81,22 +81,19 @@ public class CarController : MonoBehaviour
         aeroDynamics.ApplyAeroLift(rB, wC, vel);
 
         // update steering angle due to input, correct for ackermann and apply steering (if we have a steering script)
-        if (steering != null && suspension != null)
-        {
-            steerAngle = steering.SteerAngle(vel, inputX, steerAngle, wC);
-            wC[2].steerAngle = steering.AckerAdjusted(steerAngle, suspension.GetWheelBase, suspension.GetTrackFront, true);
-            wC[3].steerAngle = steering.AckerAdjusted(steerAngle, suspension.GetWheelBase, suspension.GetTrackFront, false);
-        }
+        steerAngle = steering.SteerAngle(vel, inputX, steerAngle, wC);
+        wC[2].steerAngle = steering.AckerAdjusted(steerAngle, suspension.GetWheelBase, suspension.GetTrackFront, true);
+        wC[3].steerAngle = steering.AckerAdjusted(steerAngle, suspension.GetWheelBase, suspension.GetTrackFront, false);
 
         
         // update lateral load transfer from anti-roll bars (sway bars)
-        suspension.ApplyLLT(rB, wC);
+        suspension.ApplyLLT();
 
         // if automatic, select gear appropriate for vehicle speed (unless reverse requested)
         if (transmission.GetAutomatic)
         {
             if (inputR > 0.1) transmission.SelectReverse();
-            else transmission.SetGear(suspension.GetNoSlipWheelRPM(vel));
+            else transmission.SetGear(suspension.GetNoSlipWheelRPM(vel), engine.GetEngineRPMMaxPower);
         }
 
         // update engine rpm and available torque
@@ -113,7 +110,7 @@ public class CarController : MonoBehaviour
         else engineTorque = 0.0f;
 
         // get requested wheel torques
-        float[] wheelTorques = transmission.GetWheelTorques(engineTorque, wC);
+        float[] wheelTorques = transmission.GetWheelTorques(engineTorque);
 
         // get traction control torque updates
         // if you want to add a traction control module, this would be a good place to use it
