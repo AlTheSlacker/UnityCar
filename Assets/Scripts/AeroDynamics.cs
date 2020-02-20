@@ -13,40 +13,45 @@ public class AeroDynamics : MonoBehaviour
     private float velDependentLiftFront;
     private float velDependentLiftRear;
     private float velDependentDrag;
+    private Rigidbody rB;
+    private WheelCollider[] wC;
 
     private const float airDensity = 1.292f;
-
-
+    
     void Start()
     {
-        // Calculate the velocity dependent lift and drag factors
-        // fTempDragVar is only used here
+        // get the car rigidbody
+        rB = GetComponent<Rigidbody>();
+        // get the array of wheel colliders
+        wC = gameObject.GetComponentsInChildren<WheelCollider>();
+        // calculate the velocity dependent lift and drag factors
+        // tempDragVar is only used here
         float tempDragVar = airDensity * frontalArea * 0.5f;
         // lift is divided over 4 wheels, it's applied at the wheel locations for simplicity/stability
-        // fCl is the coefficient of lift, negative values of fCl = downforce 
+        // cl is the coefficient of lift, negative values of fCl = downforce 
         velDependentLiftFront = clFront * tempDragVar / 4.0f;
         velDependentLiftRear = clRear * tempDragVar / 4.0f;
-        // fCd is the coefficient of drag, note the sign control as Z+ is car forward
+        // cd is the coefficient of drag, note the sign control as Z+ is car forward
         velDependentDrag = cd * tempDragVar;
     }
 
-    public void ApplyAeroDrag(Rigidbody rb, WheelCollider[] wc, float vel)
+    public void ApplyAeroDrag(float vel)
     {
         float velSq = vel * vel;
         float drag = velDependentDrag * velSq;
         if (vel < 0.0f) drag = -drag;
-        rb.AddRelativeForce(0.0f, 0.0f, -drag, ForceMode.Force);
+        rB.AddRelativeForce(0.0f, 0.0f, -drag, ForceMode.Force);
     }
 
-    public void ApplyAeroLift(Rigidbody rb, WheelCollider[] wc, float vel)
+    public void ApplyAeroLift(float vel)
     {
         float velSq = vel * vel;
         float liftFront = velDependentLiftFront * velSq;
         float liftRear = velDependentLiftRear * velSq;
         for (int i = 0; i < 2; i++)
         {
-            rb.AddForceAtPosition(wc[i].transform.up * liftRear, wc[i].transform.position);
-            rb.AddForceAtPosition(wc[i + 2].transform.up * liftFront, wc[i + 2].transform.position);
+            rB.AddForceAtPosition(wC[i].transform.up * liftRear, wC[i].transform.position);
+            rB.AddForceAtPosition(wC[i + 2].transform.up * liftFront, wC[i + 2].transform.position);
         }
     }
 

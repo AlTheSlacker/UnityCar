@@ -77,11 +77,11 @@ public class CarController : MonoBehaviour
         vel = transform.InverseTransformDirection(rB.velocity).z;
 
         // update aerodynamic drag and lift
-        aeroDynamics.ApplyAeroDrag(rB, wC, vel);
-        aeroDynamics.ApplyAeroLift(rB, wC, vel);
+        aeroDynamics.ApplyAeroDrag(vel);
+        aeroDynamics.ApplyAeroLift(vel);
 
         // update steering angle due to input, correct for ackermann and apply steering (if we have a steering script)
-        steerAngle = steering.SteerAngle(vel, inputX, steerAngle, wC);
+        steerAngle = steering.SteerAngle(vel, inputX, steerAngle);
         wC[2].steerAngle = steering.AckerAdjusted(steerAngle, suspension.GetWheelBase, suspension.GetTrackFront, true);
         wC[3].steerAngle = steering.AckerAdjusted(steerAngle, suspension.GetWheelBase, suspension.GetTrackFront, false);
 

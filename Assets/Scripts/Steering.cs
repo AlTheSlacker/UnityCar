@@ -25,14 +25,16 @@ public class Steering : MonoBehaviour
 
     private float timeStep;
     private float maxSlipRad;
+    private WheelCollider[] wC;
 
     void Start()
     {
+        wC = gameObject.GetComponentsInChildren<WheelCollider>();
         timeStep = (1.0f / Time.deltaTime);
         maxSlipRad = maxSlip * Mathf.Deg2Rad;
     }
 
-    public float SteerAngle(float vel, float controllerInputX, float steerAngle, WheelCollider[] wC)
+    public float SteerAngle(float vel, float controllerInputX, float steerAngle)
     {
         float velocityScalar = 1.0f - Mathf.Clamp(Mathf.Abs(vel / highVel), 0.0f, 1.0f);
         float steerAdjustTotal = (steerAdjustHigh + (steerAdjustLow - steerAdjustHigh) * velocityScalar) / timeStep;
@@ -58,8 +60,8 @@ public class Steering : MonoBehaviour
             // check to see if allowable angular slip is being exceeded to prevent additional steering
             for (int i = 2; i < 4; i++)
             {
-                wC[i].GetGroundHit(out WheelHit whContactPatch);
-                slipLat = whContactPatch.sidewaysSlip;
+                wC[i].GetGroundHit(out WheelHit contactPatch);
+                slipLat = contactPatch.sidewaysSlip;
                 if (Mathf.Abs(slipLat) > maxSlipRad) noMoreSteer = true;
             }
 
@@ -79,9 +81,9 @@ public class Steering : MonoBehaviour
     public float AckerAdjusted(float steerAngle, float wheelBase, float trackFront, bool left)
     {
         if (steerAngle == 0.0f) return 0.0f;
-        float fTurnRad = wheelBase / Mathf.Tan(Mathf.Deg2Rad * steerAngle);
-        if (left) return Mathf.Rad2Deg * Mathf.Atan(wheelBase / (fTurnRad + trackFront));
-        else return Mathf.Rad2Deg * Mathf.Atan(wheelBase / (fTurnRad - trackFront));
+        float turnRad = wheelBase / Mathf.Tan(Mathf.Deg2Rad * steerAngle);
+        if (left) return Mathf.Rad2Deg * Mathf.Atan(wheelBase / (turnRad + trackFront));
+        else return Mathf.Rad2Deg * Mathf.Atan(wheelBase / (turnRad - trackFront));
     }
 
 }
