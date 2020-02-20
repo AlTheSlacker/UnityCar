@@ -2486,10 +2486,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   suspDisplacementRangeFront: 0.3
   suspDisplacementRangeRear: 0.3
-  suspStiffnessFront: 50000
-  suspStiffnessRear: 50000
-  suspDamperFront: 1600
-  suspDamperRear: 1600
+  suspStiffnessFront: 25000
+  suspStiffnessRear: 25000
+  suspDamperFront: 1200
+  suspDamperRear: 1200
   fARBe: 1
   rARBe: 1
   frontBumperFAxleDistance: 1

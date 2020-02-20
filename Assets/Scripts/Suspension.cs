@@ -7,10 +7,10 @@ public class Suspension : MonoBehaviour
 
     [SerializeField] private float suspDisplacementRangeFront = 0.30f;
     [SerializeField] private float suspDisplacementRangeRear = 0.30f;
-    [SerializeField] private float suspStiffnessFront = 50000.0f;
-    [SerializeField] private float suspStiffnessRear = 50000.0f;
-    [SerializeField] private float suspDamperFront = 1600.0f;
-    [SerializeField] private float suspDamperRear = 1600.0f;
+    [SerializeField] private float suspStiffnessFront = 25000.0f;
+    [SerializeField] private float suspStiffnessRear = 25000.0f;
+    [SerializeField] private float suspDamperFront = 1200.0f;
+    [SerializeField] private float suspDamperRear = 1200.0f;
     [SerializeField] private float fARBe = 1.0f;
     [SerializeField] private float rARBe = 1.0f;
     [SerializeField] private float frontBumperFAxleDistance = 1.0f;

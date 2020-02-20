@@ -176,8 +176,6 @@ public class CarController : MonoBehaviour
             transWheel.transform.localPosition = new Vector3(transWheel.transform.localPosition.x, transWheel.transform.localPosition.y - tyreOffset, transWheel.transform.localPosition.z);
             transWheel.transform.rotation = wcRotation;
         }
-
-   
     }
 
 }
