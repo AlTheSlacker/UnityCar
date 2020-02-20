@@ -158,22 +158,13 @@ public class CarController : MonoBehaviour
  
         // update wheel mesh positions to match wheel collider positions
         // slightly convoluted correction for tyre compression which must be corrected locally when WC position update is only available globally
-        float tyreOffset = 0.0f;
 
         for (int i = 0; i < 4; i++)
         {
             wC[i].GetWorldPose(out Vector3 wcPosition, out Quaternion wcRotation);
             transWheel = wC[i].gameObject.transform.GetChild(0);
             transWheel.transform.position = wcPosition;
-            if (i < 2)
-            {
-                tyreOffset = suspension.GetTyreRearOffset;
-            }
-            else
-            {
-                tyreOffset = suspension.GetTyreFrontOffset;
-            }
-            transWheel.transform.localPosition = new Vector3(transWheel.transform.localPosition.x, transWheel.transform.localPosition.y - tyreOffset, transWheel.transform.localPosition.z);
+            transWheel.transform.localPosition = new Vector3(transWheel.transform.localPosition.x, transWheel.transform.localPosition.y, transWheel.transform.localPosition.z);
             transWheel.transform.rotation = wcRotation;
         }
     }

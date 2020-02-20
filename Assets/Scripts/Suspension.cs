@@ -11,16 +11,14 @@ public class Suspension : MonoBehaviour
     [SerializeField] private float suspStiffnessRear = 25000.0f;
     [SerializeField] private float suspDamperFront = 1200.0f;
     [SerializeField] private float suspDamperRear = 1200.0f;
-    [SerializeField] private float fARBe = 1.0f;
-    [SerializeField] private float rARBe = 1.0f;
+    [SerializeField] private float fARBe = 0.2f;
+    [SerializeField] private float rARBe = 0.2f;
     [SerializeField] private float frontBumperFAxleDistance = 1.0f;
     [SerializeField] private float frontBumperRAxleDistance = 4.0f;
     [SerializeField] private float trackFront = 1.6f;
     [SerializeField] private float trackRear = 1.6f;
     [SerializeField] private float rollingRadiusFront = 0.335f;
     [SerializeField] private float rollingRadiusRear = 0.335f;
-    [SerializeField] private float tyreRadiusFront = 0.335f;
-    [SerializeField] private float tyreRadiusRear = 0.335f;
     [SerializeField] private float unsprungMassFront = 20.0f;
     [SerializeField] private float unsprungMassRear = 20.0f;
 
@@ -28,15 +26,11 @@ public class Suspension : MonoBehaviour
     private float targetPositionRear = 0.5f;
     private float wheelBase;
     private float[] staticCornerLoad;
-    private float tyreFrontOffset = 0.02f;
-    private float tyreRearOffset = 0.02f;
     private WheelCollider[] wC;
     private Rigidbody rB;
 
     public float GetWheelBase { get { return wheelBase; } }
     public float[] GetStaticCornerLoad { get { return staticCornerLoad; } }
-    public float GetTyreFrontOffset { get { return tyreFrontOffset; } }
-    public float GetTyreRearOffset { get { return tyreRearOffset; } }
     public float GetRollingRadiusFront { get { return rollingRadiusFront; } }
     public float GetRollingRadiusRear { get { return rollingRadiusRear; } }
     public float GetTrackFront { get { return trackFront; } }
@@ -49,10 +43,6 @@ public class Suspension : MonoBehaviour
         // calculate wheelbase
         wheelBase = frontBumperRAxleDistance - frontBumperFAxleDistance;
         rB = GetComponent<Rigidbody>();
-
-        // calculate the wheel centre correction for rolling radius flat spot
-        tyreFrontOffset = tyreRadiusFront - rollingRadiusFront;
-        tyreRearOffset = tyreRadiusRear - rollingRadiusRear;
 
         // set up front and rear suspension springs
         JointSpring springFront;
