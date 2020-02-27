@@ -5,4 +5,4 @@
  
  I've not added a dashboard, data-logger or any sound effects as these are beyond the scope of this project. There is extensive information in the wiki, detailing how the model is implemented and things to look out for.
  
- Try a test drive (WASD, space for handbrake, hold down r for reverse gear - then give some W).
+ Try a test drive (WASD, space for handbrake, hold down r for reverse gear - then give some W). Or watch a sample on https://youtu.be/-zkT_UEazHc
