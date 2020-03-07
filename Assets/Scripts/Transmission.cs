@@ -186,6 +186,10 @@ public class Transmission : MonoBehaviour
                 torqueTransfer = 1.0f * Mathf.Sign(slipDifferential) * Mathf.Sign(maxSlip);
             }
         }
+        if(Mathf.Abs(torqueTransfer) > Mathf.Abs(maxTrans))
+        {
+            torqueTransfer = maxTrans * Mathf.Sign(torqueTransfer);
+        }
         float torqueAdjustment = singleWheelBaseTorque * torqueTransfer;
         output[0] = singleWheelBaseTorque - torqueAdjustment;
         output[1] = singleWheelBaseTorque + torqueAdjustment;

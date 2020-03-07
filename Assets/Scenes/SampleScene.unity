@@ -2562,8 +2562,8 @@ MonoBehaviour:
   finalDriveRatio: 3
   diffSlipLimitFront: 1
   diffTransferLimitFront: 1
-  diffSlipLimitRear: 1
-  diffTransferLimitRear: 1
+  diffSlipLimitRear: -1
+  diffTransferLimitRear: 0.5
   drive: 2
   fourWDFrtTorque: 0.4
 --- !u!114 &1572473155
